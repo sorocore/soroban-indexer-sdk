@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { IndexerEngine } from './engine.js';
 import type { IDatabaseAdapter, IRpcAdapter, IParserAdapter } from './ports.js';
-import type { SorobanEvent, IngestionCursor, LedgerMetadata, IndexerConfig } from '@soroban-indexer/types';
+import type {
+  SorobanEvent,
+  IngestionCursor,
+  LedgerMetadata,
+  IndexerConfig,
+} from '@soroban-indexer/types';
 
 // ---- Mock Adapters ----
 
@@ -65,7 +70,13 @@ describe('IndexerEngine', () => {
       getEvents: async () => ({ events: [] }),
     };
 
-    const engine = new IndexerEngine('test-indexer', baseConfig, dbWithCursor, rpcAtLedger, mockParser);
+    const engine = new IndexerEngine(
+      'test-indexer',
+      baseConfig,
+      dbWithCursor,
+      rpcAtLedger,
+      mockParser
+    );
     const startPromise = engine.start();
     await new Promise((r) => setTimeout(r, 200)); // let start() call getCursor
     engine.stop();

@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { BaseError, IndexerError, RPCError, ParserError, DatabaseError, NotFoundError } from './errors.js';
+import {
+  BaseError,
+  IndexerError,
+  RPCError,
+  ParserError,
+  DatabaseError,
+  NotFoundError,
+} from './errors.js';
 
 describe('Error classes', () => {
   it('BaseError sets the correct properties', () => {
