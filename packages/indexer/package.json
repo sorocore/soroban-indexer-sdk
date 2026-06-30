@@ -1,0 +1,23 @@
+{
+  "name": "@soroban-indexer/indexer",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@soroban-indexer/core": "workspace:*",
+    "@soroban-indexer/database": "workspace:*",
+    "@soroban-indexer/parser": "workspace:*",
+    "@soroban-indexer/rpc": "workspace:*",
+    "@soroban-indexer/shared": "workspace:*",
+    "@soroban-indexer/types": "workspace:*",
+    "drizzle-orm": "^0.30.10"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

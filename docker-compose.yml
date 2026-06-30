@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: soroban_indexer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d soroban_indexer"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  demo-api:
+    build:
+      context: .
+      dockerfile: apps/demo-api/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/soroban_indexer
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "--filter", "demo-api", "start"]
+
+  example-indexer:
+    build:
+      context: .
+      dockerfile: apps/example-indexer/Dockerfile
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/soroban_indexer
+      - RPC_URL=https://soroban-testnet.stellar.org:443
+      - NETWORK_PASSPHRASE=Test SDF Network ; September 2015
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "--filter", "example-indexer", "start"]
+
+volumes:
+  postgres-data:

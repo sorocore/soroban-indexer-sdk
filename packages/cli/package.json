@@ -1,0 +1,19 @@
+{
+  "name": "@soroban-indexer/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "soroban-index": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@soroban-indexer/shared": "workspace:*",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
