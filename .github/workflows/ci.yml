@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   validate:
@@ -42,6 +42,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build Packages and Apps
+        run: pnpm run build
+
       - name: Lint Codebase
         run: pnpm run lint
 
@@ -50,6 +53,3 @@ jobs:
 
       - name: Run Tests
         run: pnpm run test
-
-      - name: Build Packages and Apps
-        run: pnpm run build
