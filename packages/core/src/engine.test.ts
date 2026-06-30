@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { IndexerEngine } from './engine.ts';
-import type { IDatabaseAdapter, IRpcAdapter, IParserAdapter } from './ports.ts';
+import { IndexerEngine } from './engine.js';
+import type { IDatabaseAdapter, IRpcAdapter, IParserAdapter } from './ports.js';
 import type { SorobanEvent, IngestionCursor, LedgerMetadata, IndexerConfig } from '@soroban-indexer/types';
 
 // ---- Mock Adapters ----

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { IndexerConfigSchema, SorobanEventSchema, IngestionCursorSchema } from './index.ts';
+import { IndexerConfigSchema, SorobanEventSchema, IngestionCursorSchema } from './index.js';
 
 describe('IndexerConfigSchema', () => {
   it('parses a valid config', () => {
