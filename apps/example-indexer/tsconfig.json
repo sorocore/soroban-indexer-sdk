@@ -4,5 +4,16 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "references": [
+    {
+      "path": "../../packages/indexer"
+    },
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/types"
+    }
+  ]
 }

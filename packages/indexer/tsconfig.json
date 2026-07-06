@@ -4,5 +4,25 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../database"
+    },
+    {
+      "path": "../parser"
+    },
+    {
+      "path": "../rpc"
+    },
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../types"
+    }
+  ]
 }

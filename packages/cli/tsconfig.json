@@ -4,5 +4,10 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
+  "references": [
+    {
+      "path": "../shared"
+    }
+  ],
   "include": ["src/**/*"]
 }
