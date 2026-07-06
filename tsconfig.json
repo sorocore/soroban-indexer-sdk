@@ -16,7 +16,10 @@
     "composite": true,
     "incremental": true,
     "rootDir": ".",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@soroban-indexer/*": ["./packages/*", "./apps/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "build", "target"]
 }
