@@ -60,12 +60,14 @@ class RpcAdapter implements IRpcAdapter {
     return this.client.getLatestLedger();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getEvents(startLedger: number, endLedger: number): Promise<any> {
     return this.client.getEvents(startLedger, endLedger);
   }
 }
 
 class ParserAdapter implements IParserAdapter {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseEvents(rawEvents: any[]): SorobanEvent[] {
     return rawEvents.map((e) =>
       parseSorobanEvent(e, e.txHash, e.ledger, parseInt(e.ledgerClosedAt, 10))

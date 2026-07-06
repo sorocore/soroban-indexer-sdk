@@ -9,9 +9,11 @@ export interface IDatabaseAdapter {
 
 export interface IRpcAdapter {
   getLatestLedger(): Promise<number>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getEvents(startLedger: number, endLedger: number): Promise<any>;
 }
 
 export interface IParserAdapter {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseEvents(rawEvents: any[]): SorobanEvent[];
 }
