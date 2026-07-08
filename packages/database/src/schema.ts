@@ -15,7 +15,7 @@ export const events = pgTable('events', {
   contractId: varchar('contract_id', { length: 56 }).notNull(),
   type: varchar('type', { length: 16 }).notNull(), // 'contract', 'system', 'diagnostic'
   topics: jsonb('topics').$type<string[]>().notNull(),
-  value: text('value').notNull(),
+  value: jsonb('value').$type<Record<string, unknown>>().notNull(),
   transactionHash: varchar('transaction_hash', { length: 64 }).notNull(),
   ledgerSequence: integer('ledger_sequence')
     .notNull()
