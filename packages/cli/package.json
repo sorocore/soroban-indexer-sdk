@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@soroban-indexer/shared": "workspace:*",
+    "@soroban-indexer/rpc": "workspace:*",
     "commander": "^12.1.0"
   },
   "devDependencies": {

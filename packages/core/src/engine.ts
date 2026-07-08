@@ -5,6 +5,7 @@ import { IndexerConfig } from '@soroban-indexer/types';
 export class IndexerEngine {
   private isRunning = false;
   private currentLedger: number;
+  private lastPruneTime = 0;
 
   constructor(
     private readonly indexerId: string,
@@ -46,6 +47,23 @@ export class IndexerEngine {
   private async runLoop() {
     while (this.isRunning) {
       try {
+        if (this.config.retentionPeriodDays && Date.now() - this.lastPruneTime > 1000 * 60 * 60) {
+          const threshold =
+            Math.floor(Date.now() / 1000) - this.config.retentionPeriodDays * 24 * 60 * 60;
+          this.db
+            .pruneOldEvents(threshold)
+            .then((count) => {
+              if (count > 0) logger.info(`Pruned ${count} old events.`);
+            })
+            .catch((err) => {
+              logger.error(
+                { error: err instanceof Error ? err.message : String(err) },
+                'Error pruning old events'
+              );
+            });
+          this.lastPruneTime = Date.now();
+        }
+
         const latestNetworkLedger = await this.rpc.getLatestLedger();
 
         if (this.currentLedger <= latestNetworkLedger) {
