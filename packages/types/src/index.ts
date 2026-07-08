@@ -10,6 +10,7 @@ export const IndexerConfigSchema = z.object({
   batchSize: z.number().int().positive().default(100),
   retryLimit: z.number().int().nonnegative().default(3),
   pollIntervalMs: z.number().int().positive().default(1000),
+  retentionPeriodDays: z.number().int().positive().optional(),
 });
 
 export type IndexerConfig = z.infer<typeof IndexerConfigSchema>;

@@ -15,6 +15,7 @@ const mockDb: IDatabaseAdapter = {
   saveEvents: async (_events: SorobanEvent[]) => {},
   getCursor: async (_id: string): Promise<IngestionCursor | null> => null,
   updateCursor: async (_cursor: IngestionCursor) => {},
+  pruneOldEvents: async (_threshold: number) => 0,
 };
 
 const mockRpc: IRpcAdapter = {
@@ -83,5 +84,27 @@ describe('IndexerEngine', () => {
     await startPromise.catch(() => {});
     // getCursor must have been called during start()
     expect(cursorChecked).toBe(true);
+  });
+
+  it('triggers pruning when retentionPeriodDays is configured', async () => {
+    let pruneCalled = false;
+    const dbWithPruning: IDatabaseAdapter = {
+      ...mockDb,
+      pruneOldEvents: async (_threshold: number) => {
+        pruneCalled = true;
+        return 5;
+      },
+    };
+    const rpc: IRpcAdapter = {
+      getLatestLedger: async () => 10,
+      getEvents: async () => ({ events: [] }),
+    };
+    const configWithRetention = { ...baseConfig, retentionPeriodDays: 30 };
+    const engine = new IndexerEngine('test', configWithRetention, dbWithPruning, rpc, mockParser);
+    const p = engine.start();
+    await new Promise((r) => setTimeout(r, 100)); // allow runLoop to run
+    engine.stop();
+    await p.catch(() => {});
+    expect(pruneCalled).toBe(true);
   });
 });

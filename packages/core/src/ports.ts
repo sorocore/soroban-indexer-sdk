@@ -5,6 +5,7 @@ export interface IDatabaseAdapter {
   saveEvents(events: SorobanEvent[]): Promise<void>;
   getCursor(indexerId: string): Promise<IngestionCursor | null>;
   updateCursor(cursor: IngestionCursor): Promise<void>;
+  pruneOldEvents(timestampThreshold: number): Promise<number>;
 }
 
 export interface IRpcAdapter {

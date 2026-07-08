@@ -106,6 +106,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@soroban-indexer/rpc':
+        specifier: workspace:*
+        version: link:../rpc
       '@soroban-indexer/shared':
         specifier: workspace:*
         version: link:../shared

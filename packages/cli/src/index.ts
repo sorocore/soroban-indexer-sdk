@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { logger } from '@soroban-indexer/shared';
+import { SorobanRpcClient } from '@soroban-indexer/rpc';
 
 const program = new Command();
 
@@ -49,9 +50,30 @@ program
   .description('Inspect live contract state on the network')
   .argument('<contractId>', 'Soroban contract ID')
   .option('--rpc <url>', 'RPC endpoint URL')
-  .action((contractId, options) => {
+  .action(async (contractId, options) => {
     logger.info(`Inspecting contract ${contractId} on ${options.rpc || 'default RPC'}...`);
-    // Placeholder: Use RpcClient to fetch latest storage entries for contract
+    const rpcUrl = options.rpc || 'https://soroban-testnet.stellar.org:443';
+    try {
+      const client = new SorobanRpcClient({
+        rpcUrl,
+        networkPassphrase: 'Test SDF Network ; September 2015',
+      });
+      const latestLedger = await client.getLatestLedger();
+      const startLedger = Math.max(1, latestLedger - 100);
+      const events = await client.getEvents(startLedger, latestLedger, [
+        {
+          type: 'contract',
+          contractIds: [contractId],
+        },
+      ]);
+      // eslint-disable-next-line no-console
+      console.log(JSON.stringify(events, null, 2));
+    } catch (error) {
+      logger.error(
+        { error: error instanceof Error ? error.message : String(error) },
+        'Failed to inspect contract'
+      );
+    }
   });
 
 program.parse(process.argv);
