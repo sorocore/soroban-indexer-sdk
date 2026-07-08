@@ -15,7 +15,7 @@ import { SorobanRpcClient } from '@soroban-indexer/rpc';
 import { parseSorobanEvent } from '@soroban-indexer/parser';
 import { eq } from 'drizzle-orm';
 
-class DatabaseAdapter implements IDatabaseAdapter {
+export class DatabaseAdapter implements IDatabaseAdapter {
   constructor(private db: Database) {}
 
   async saveLedger(ledger: LedgerMetadata): Promise<void> {
@@ -53,7 +53,7 @@ class DatabaseAdapter implements IDatabaseAdapter {
   }
 }
 
-class RpcAdapter implements IRpcAdapter {
+export class RpcAdapter implements IRpcAdapter {
   constructor(private client: SorobanRpcClient) {}
 
   async getLatestLedger(): Promise<number> {
@@ -66,7 +66,7 @@ class RpcAdapter implements IRpcAdapter {
   }
 }
 
-class ParserAdapter implements IParserAdapter {
+export class ParserAdapter implements IParserAdapter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseEvents(rawEvents: any[]): SorobanEvent[] {
     return rawEvents.map((e) =>

@@ -20,6 +20,13 @@
     "@soroban-indexer/types": "workspace:*"
   },
   "devDependencies": {
+    "@soroban-indexer/database": "workspace:*",
+    "@soroban-indexer/indexer": "workspace:*",
+    "@testcontainers/postgresql": "^10.9.0",
+    "@types/pg": "^8.11.6",
+    "drizzle-orm": "^0.30.10",
+    "pg": "^8.11.5",
+    "testcontainers": "^10.9.0",
     "typescript": "^5.4.5"
   }
 }
