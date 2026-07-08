@@ -33,7 +33,7 @@ export const SorobanEventSchema = z.object({
   contractId: z.string(),
   type: z.enum(['contract', 'system', 'diagnostic']),
   topics: z.array(z.string()),
-  value: z.string(), // JSON string of parsed value or raw XDR
+  value: z.record(z.string(), z.unknown()), // JSONB object for native PostgreSQL JSON querying
   transactionHash: z.string(),
   ledgerSequence: z.number().int().positive(),
   timestamp: z.number().int().positive(),

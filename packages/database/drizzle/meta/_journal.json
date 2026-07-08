@@ -8,6 +8,13 @@
       "when": 1783425492279,
       "tag": "0000_silly_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1752019882000,
+      "tag": "0001_events_value_jsonb",
+      "breakpoints": true
     }
   ]
 }

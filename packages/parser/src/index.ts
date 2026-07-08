@@ -42,18 +42,17 @@ export function parseSorobanEvent(
         : String(native);
     });
 
-    // Decode and parse values
+    // Decode and parse value into a JSONB-compatible object
     const rawVal = xdr.ScVal.fromXDR(rawEvent.value, 'base64');
     const parsedValue = scValToNative(rawVal);
-    let stringifiedValue: string;
+    let jsonbValue: Record<string, unknown>;
 
     if (parsedValue instanceof Uint8Array || Buffer.isBuffer(parsedValue)) {
-      stringifiedValue = Buffer.from(parsedValue).toString('hex');
+      jsonbValue = { hex: Buffer.from(parsedValue).toString('hex') };
+    } else if (typeof parsedValue === 'object' && parsedValue !== null) {
+      jsonbValue = parsedValue as Record<string, unknown>;
     } else {
-      stringifiedValue =
-        typeof parsedValue === 'object' && parsedValue !== null
-          ? JSON.stringify(parsedValue)
-          : String(parsedValue);
+      jsonbValue = { value: parsedValue };
     }
 
     return {
@@ -61,7 +60,7 @@ export function parseSorobanEvent(
       contractId: rawEvent.contractId,
       type: rawEvent.type,
       topics: parsedTopics,
-      value: stringifiedValue,
+      value: jsonbValue,
       transactionHash: txHash,
       ledgerSequence: ledgerSeq,
       timestamp,
