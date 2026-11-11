@@ -107,4 +107,55 @@ describe('IndexerEngine', () => {
     await p.catch(() => {});
     expect(pruneCalled).toBe(true);
   });
+
+  it('starts metrics server and responds to /health and /metrics when metricsPort is configured', async () => {
+    const testPort = 19876;
+    const configWithMetrics = { ...baseConfig, metricsPort: testPort };
+    const rpc: IRpcAdapter = {
+      getLatestLedger: async () => 500,
+      getEvents: async () => ({ events: [] }),
+    };
+
+    const engine = new IndexerEngine('test-telemetry', configWithMetrics, mockDb, rpc, mockParser);
+    const startPromise = engine.start();
+
+    // Wait for server to bind
+    await new Promise((r) => setTimeout(r, 100));
+
+    try {
+      const healthRes = await fetch(`http://127.0.0.1:${testPort}/health`);
+      expect(healthRes.status).toBe(200);
+      const healthJson = await healthRes.json();
+      expect(healthJson).toEqual({ status: 'running' });
+
+      const metricsRes = await fetch(`http://127.0.0.1:${testPort}/metrics`);
+      expect(metricsRes.status).toBe(200);
+      expect(metricsRes.headers.get('content-type')).toContain('text/plain');
+      const metricsText = await metricsRes.text();
+      expect(metricsText).toContain('indexer_current_ledger');
+      expect(metricsText).toContain('indexer_latest_network_ledger');
+      expect(metricsText).toContain('indexer_events_processed_total');
+
+      const notFoundRes = await fetch(`http://127.0.0.1:${testPort}/unknown`);
+      expect(notFoundRes.status).toBe(404);
+    } finally {
+      engine.stop();
+      await startPromise.catch(() => {});
+    }
+
+    // Verify server is closed after stop()
+    await new Promise((r) => setTimeout(r, 50));
+    await expect(fetch(`http://127.0.0.1:${testPort}/health`)).rejects.toThrow();
+  });
+
+  it('does not start metrics server when metricsPort is not configured', async () => {
+    const testPort = 19877;
+    const engine = new IndexerEngine('test-no-metrics', baseConfig, mockDb, mockRpc, mockParser);
+    const startPromise = engine.start();
+    await new Promise((r) => setTimeout(r, 50));
+    engine.stop();
+    await startPromise.catch(() => {});
+
+    await expect(fetch(`http://127.0.0.1:${testPort}/health`)).rejects.toThrow();
+  });
 });
