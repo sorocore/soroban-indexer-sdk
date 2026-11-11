@@ -1,3 +1,4 @@
+import http from 'node:http';
 import { logger } from '@soroban-indexer/shared';
 import { IDatabaseAdapter, IRpcAdapter, IParserAdapter } from './ports.js';
 import { IndexerConfig } from '@soroban-indexer/types';
@@ -6,6 +7,9 @@ export class IndexerEngine {
   private isRunning = false;
   private currentLedger: number;
   private lastPruneTime = 0;
+  private metricsServer?: http.Server;
+  private latestNetworkLedger = 0;
+  private totalEventsProcessed = 0;
 
   constructor(
     private readonly indexerId: string,
@@ -21,6 +25,10 @@ export class IndexerEngine {
     if (this.isRunning) return;
     this.isRunning = true;
     logger.info(`Starting indexer ${this.indexerId} from ledger ${this.currentLedger}`);
+
+    if (this.config.metricsPort) {
+      this.startMetricsServer(this.config.metricsPort);
+    }
 
     // Fetch initial cursor
     const cursor = await this.db.getCursor(this.indexerId);
@@ -42,6 +50,44 @@ export class IndexerEngine {
   public stop() {
     this.isRunning = false;
     logger.info(`Stopping indexer ${this.indexerId}...`);
+    if (this.metricsServer) {
+      this.metricsServer.close();
+      this.metricsServer = undefined;
+    }
+  }
+
+  private startMetricsServer(port: number) {
+    this.metricsServer = http.createServer((req, res) => {
+      const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+      if (url.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'running' }));
+      } else if (url.pathname === '/metrics') {
+        const body = [
+          '# HELP indexer_current_ledger Current ledger sequence indexed',
+          '# TYPE indexer_current_ledger gauge',
+          `indexer_current_ledger ${this.currentLedger}`,
+          '',
+          '# HELP indexer_latest_network_ledger Latest ledger sequence on the network',
+          '# TYPE indexer_latest_network_ledger gauge',
+          `indexer_latest_network_ledger ${this.latestNetworkLedger}`,
+          '',
+          '# HELP indexer_events_processed_total Total number of Soroban events processed',
+          '# TYPE indexer_events_processed_total counter',
+          `indexer_events_processed_total ${this.totalEventsProcessed}`,
+          '',
+        ].join('\n');
+        res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8' });
+        res.end(body);
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+      }
+    });
+
+    this.metricsServer.listen(port, () => {
+      logger.info(`Metrics server listening on port ${port}`);
+    });
   }
 
   private async runLoop() {
@@ -65,6 +111,7 @@ export class IndexerEngine {
         }
 
         const latestNetworkLedger = await this.rpc.getLatestLedger();
+        this.latestNetworkLedger = latestNetworkLedger;
 
         if (this.currentLedger <= latestNetworkLedger) {
           const endLedger = Math.min(
@@ -79,6 +126,7 @@ export class IndexerEngine {
 
           if (parsedEvents.length > 0) {
             await this.db.saveEvents(parsedEvents);
+            this.totalEventsProcessed += parsedEvents.length;
             logger.info(
               `Saved ${parsedEvents.length} events for ledgers ${this.currentLedger}-${endLedger}`
             );
